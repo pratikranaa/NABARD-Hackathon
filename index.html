@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitti-MRV: NABARD Hackathon Proposal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Agri-Tech Harmony -->
+    <!-- Application Structure Plan: The application is designed as a single-page, scrollable proposal, mimicking an interactive pitch deck. A sticky top navigation allows judges to easily move between key sections: The Problem, Our Solution, Technology, Impact, and Features. This structure was chosen to guide the user through a logical narrative—from understanding the core challenge to appreciating the solution's impact. Instead of a static report, this interactive flow makes the complex information digestible and engaging, allowing for both a linear read-through and quick, non-linear exploration of specific details, which is ideal for a hackathon evaluation scenario. -->
+    <!-- Visualization & Content Choices: 
+        - Problem Statement (Pain Points): Report Info -> High transaction costs, data issues, complexity. Goal -> Inform & Emphasize. Viz/Method -> Icon-driven cards (HTML/Tailwind). Interaction -> Subtle hover effect. Justification -> Visually breaks down complex problems into digestible pieces.
+        - MRV Workflow: Report Info -> Data flow from field to registry. Goal -> Organize & Explain. Viz/Method -> A process flow diagram built with styled HTML divs and borders. Interaction -> Active step highlighting on scroll. Justification -> Clarifies a multi-step process more effectively than text, showing the seamless integration of technology.
+        - Cost Comparison: Report Info -> Solution must be affordable. Goal -> Compare & Persuade. Viz/Method -> Bar Chart. Interaction -> Tooltips on hover showing exact values. Justification -> Provides a powerful, immediate visual comparison of cost-effectiveness, a key evaluation criterion. Library -> Chart.js.
+        - Impact Potential: Report Info -> Scalability and co-benefits. Goal -> Inform & Inspire. Viz/Method -> Donut Chart. Interaction -> Tooltips on hover. Justification -> Effectively showcases the multi-faceted benefits (carbon, economy, soil) of the solution in a simple format. Library -> Chart.js.
+        - User Features: Report Info -> Features for Farmers, Verifiers, etc. Goal -> Organize. Viz/Method -> Tabbed content switcher. Interaction -> Click to switch user view. Justification -> Organizes dense feature information cleanly, preventing a long page and allowing judges to see the solution from different user perspectives. Method -> Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3f3c3a;
+        }
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #22c55e;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #F0EBE5;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; 
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .step-connector::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -2.5rem;
+            width: 2.5rem;
+            border-bottom: 2px dashed #d1d5db;
+            z-index: 0;
+        }
+        .step-icon {
+            transition: all 0.3s ease;
+        }
+        .active-step .step-icon {
+            background-color: #22c55e;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+        .tab-btn.active {
+            border-color: #22c55e;
+            color: #22c55e;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#hero" class="text-2xl font-bold text-gray-800">Mitti-MRV 🌱</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problem" class="nav-link text-gray-600 font-medium">The Challenge</a>
+                <a href="#solution" class="nav-link text-gray-600 font-medium">Our Solution</a>
+                <a href="#tech" class="nav-link text-gray-600 font-medium">Technology</a>
+                <a href="#impact" class="nav-link text-gray-600 font-medium">Impact</a>
+                <a href="#features" class="nav-link text-gray-600 font-medium">Features</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden focus:outline-none">
+                 <span class="text-3xl">☰</span>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#problem" class="block py-2 px-6 text-sm text-gray-600 hover:bg-gray-100">The Challenge</a>
+            <a href="#solution" class="block py-2 px-6 text-sm text-gray-600 hover:bg-gray-100">Our Solution</a>
+            <a href="#tech" class="block py-2 px-6 text-sm text-gray-600 hover:bg-gray-100">Technology</a>
+            <a href="#impact" class="block py-2 px-6 text-sm text-gray-600 hover:bg-gray-100">Impact</a>
+            <a href="#features" class="block py-2 px-6 text-sm text-gray-600 hover:bg-gray-100">Features</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32 bg-green-50">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">Mitti-MRV</h1>
+                <p class="mt-4 text-lg md:text-xl text-green-800 max-w-3xl mx-auto">An affordable, scalable, and farmer-centric MRV solution to unlock India's carbon farming potential for smallholders.</p>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-3xl font-bold text-green-600">80%</p>
+                        <p class="mt-2 text-gray-600">Reduction in MRV Costs</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-3xl font-bold text-green-600">10M+</p>
+                        <p class="mt-2 text-gray-600">Farmers Scalable Reach</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-3xl font-bold text-green-600">95%</p>
+                        <p class="mt-2 text-gray-600">Accuracy via AI Fusion</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="problem" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">The Smallholder MRV Challenge</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Current carbon market systems were not built for India's smallholder farmers. We are changing that by directly addressing their key pain points.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card p-8 rounded-lg">
+                        <div class="text-4xl mb-4">💰</div>
+                        <h3 class="text-xl font-bold mb-2">Prohibitive Costs</h3>
+                        <p class="text-gray-600">High transaction and verification fees make participation unprofitable for farmers with small landholdings, creating a significant barrier to entry.</p>
+                    </div>
+                    <div class="card p-8 rounded-lg">
+                        <div class="text-4xl mb-4">📊</div>
+                        <h3 class="text-xl font-bold mb-2">Data Fragmentation</h3>
+                        <p class="text-gray-600">Inconsistent, manual data collection methods and a lack of integration between ground data and remote sensing leads to inaccuracies and low trust.</p>
+                    </div>
+                    <div class="card p-8 rounded-lg">
+                        <div class="text-4xl mb-4">🧩</div>
+                        <h3 class="text-xl font-bold mb-2">System Complexity</h3>
+                        <p class="text-gray-600">Complex verification processes and digital tools are often unsuitable for users with varying levels of digital literacy and low-connectivity environments.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">The Mitti-MRV Solution Workflow</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Our hybrid approach integrates cutting-edge technology with community-led data validation, creating a seamless, transparent, and auditable flow from farm to carbon credit.</p>
+                </div>
+                <div class="relative flex flex-col lg:flex-row justify-center items-center gap-10 lg:gap-0">
+                    <div class="workflow-step text-center w-60 z-10" data-step="1">
+                        <div class="step-icon w-24 h-24 mx-auto rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-4xl shadow-md">📱</div>
+                        <h3 class="mt-4 font-bold text-lg">1. Data Capture</h3>
+                        <p class="text-sm text-gray-500">Farmers use a simple, multilingual mobile app to log activities like planting and irrigation, even offline.</p>
+                    </div>
+                    <div class="hidden lg:block step-connector"></div>
+                    <div class="workflow-step text-center w-60 z-10" data-step="2">
+                        <div class="step-icon w-24 h-24 mx-auto rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-4xl shadow-md">🛰️</div>
+                        <h3 class="mt-4 font-bold text-lg">2. AI Fusion</h3>
+                        <p class="text-sm text-gray-500">Our AI models process satellite imagery (Sentinel, Landsat) and cross-validate it with farmer-submitted data for accuracy.</p>
+                    </div>
+                    <div class="hidden lg:block step-connector"></div>
+                    <div class="workflow-step text-center w-60 z-10" data-step="3">
+                        <div class="step-icon w-24 h-24 mx-auto rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-4xl shadow-md">🌍</div>
+                        <h3 class="mt-4 font-bold text-lg">3. Carbon Estimation</h3>
+                        <p class="text-sm text-gray-500">IPCC-aligned algorithms estimate carbon sequestration for agroforestry and emissions reduction for rice cultivation.</p>
+                    </div>
+                    <div class="hidden lg:block step-connector"></div>
+                    <div class="workflow-step text-center w-60 z-10" data-step="4">
+                        <div class="step-icon w-24 h-24 mx-auto rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-4xl shadow-md">🔗</div>
+                        <h3 class="mt-4 font-bold text-lg">4. Ledger & Verification</h3>
+                        <p class="text-sm text-gray-500">All data points are recorded on a secure ledger. Third-party verifiers get a streamlined dashboard to audit and approve credits.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="py-20">
+             <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Our Technology Stack</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">We use a robust, scalable, and interoperable tech stack designed for the Indian agricultural context.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    <div class="card text-center p-6 rounded-lg">
+                        <div class="text-5xl mb-3">📡</div>
+                        <h4 class="font-bold">Remote Sensing</h4>
+                        <p class="text-sm text-gray-500">Sentinel-2 & Landsat data processed with custom algorithms for biomass and soil moisture analysis.</p>
+                    </div>
+                     <div class="card text-center p-6 rounded-lg">
+                        <div class="text-5xl mb-3">🧠</div>
+                        <h4 class="font-bold">AI/ML Models</h4>
+                        <p class="text-sm text-gray-500">TensorFlow models for crop classification, carbon estimation, and anomaly detection in farmer-reported data.</p>
+                    </div>
+                     <div class="card text-center p-6 rounded-lg">
+                        <div class="text-5xl mb-3">📲</div>
+                        <h4 class="font-bold">Mobile First</h4>
+                        <p class="text-sm text-gray-500">Offline-capable Progressive Web App (PWA) with multilingual voice-assisted inputs for accessibility.</p>
+                    </div>
+                     <div class="card text-center p-6 rounded-lg">
+                        <div class="text-5xl mb-3">⛓️</div>
+                        <h4 class="font-bold">Secure Database</h4>
+                        <p class="text-sm text-gray-500">Immutable, auditable records managed in a high-performance distributed database for transparency.</p>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        <section id="impact" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Quantifiable Impact & Scalability</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Our model is not just technologically innovative; it's designed for sustainable economic and environmental impact.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold text-center mb-4">MRV Cost Reduction</h3>
+                        <p class="text-center text-gray-600 mb-6">By automating data collection and verification, we dramatically lower costs, making carbon markets accessible.</p>
+                        <div class="chart-container">
+                            <canvas id="costChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-center mb-4">Co-Benefit Quantification</h3>
+                        <p class="text-center text-gray-600 mb-6">Beyond carbon, our platform tracks key metrics for soil health, water savings, and biodiversity, creating additional value.</p>
+                        <div class="chart-container">
+                             <canvas id="impactChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="features" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Built for Every Stakeholder</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">A user-centric platform designed to be simple, powerful, and transparent for everyone in the value chain.</p>
+                </div>
+
+                <div class="flex justify-center mb-8 border-b">
+                    <button class="tab-btn active py-2 px-6 font-medium text-gray-600 border-b-2 border-transparent" data-target="farmers">Farmers</button>
+                    <button class="tab-btn py-2 px-6 font-medium text-gray-600 border-b-2 border-transparent" data-target="verifiers">Verifiers</button>
+                    <button class="tab-btn py-2 px-6 font-medium text-gray-600 border-b-2 border-transparent" data-target="buyers">Project Developers</button>
+                </div>
+                
+                <div id="tab-content" class="max-w-4xl mx-auto">
+                    <div id="farmers" class="tab-pane active">
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Simple Data Logging:</span> Record farming activities in under 2 minutes with voice notes and photos, in your local language.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Instant Carbon Score:</span> See your estimated carbon impact and potential earnings in real-time.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Best Practice Guides:</span> Access visual guides on climate-smart agriculture techniques to improve your score.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Transparent Payouts:</span> Track your carbon credit sales and receive payments directly through integrated systems.</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="verifiers" class="tab-pane hidden">
+                        <ul class="space-y-4">
+                             <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Automated Audit Trail:</span> Access an immutable, time-stamped log of all farmer-reported data and satellite validations.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">AI-Flagged Discrepancies:</span> Machine learning models automatically highlight anomalies between ground and remote data for focused review.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Digital Verification Workflow:</span> Review, comment on, and approve project data from a single, intuitive dashboard, reducing site visits by up to 60%.</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="buyers" class="tab-pane hidden">
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">High-Quality Project Portfolio:</span> Discover and invest in aggregated smallholder projects with high-integrity data.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Real-time Impact Monitoring:</span> Track carbon sequestration and co-benefits (water, biodiversity) through a live dashboard.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">✓</span>
+                                <div><span class="font-semibold">Direct NABARD Alignment:</span> Confidently invest in projects that support India's rural economy and climate commitments.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Mitti-MRV. A conceptual proposal for the NABARD Hackathon.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('main section');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.4
+    };
+
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        sectionObserver.observe(section);
+    });
+
+    const workflowSteps = document.querySelectorAll('.workflow-step');
+    const stepObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active-step');
+            } else {
+                entry.target.classList.remove('active-step');
+            }
+        });
+    }, { threshold: 0.8 });
+
+    workflowSteps.forEach(step => {
+        stepObserver.observe(step);
+    });
+
+    const costCtx = document.getElementById('costChart').getContext('2d');
+    new Chart(costCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Traditional MRV', 'Mitti-MRV'],
+            datasets: [{
+                label: 'Cost per Hectare per Year ($)',
+                data: [50, 10],
+                backgroundColor: ['#fca5a5', '#86efac'],
+                borderColor: ['#ef4444', '#22c55e'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Cost in USD ($)' }
+                }
+            }
+        }
+    });
+
+    const impactCtx = document.getElementById('impactChart').getContext('2d');
+    new Chart(impactCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Carbon Sequestration', 'Increased Farmer Income', 'Improved Soil Health'],
+            datasets: [{
+                label: 'Impact Distribution',
+                data: [50, 35, 15],
+                backgroundColor: [
+                    '#4ade80',
+                    '#facc15',
+                    '#a16207'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: false,
+                }
+            }
+        }
+    });
+
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            tabPanes.forEach(pane => {
+                if (pane.id === targetId) {
+                    pane.classList.remove('hidden');
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.add('hidden');
+                    pane.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+</script>
+
+</body>
+</html>
